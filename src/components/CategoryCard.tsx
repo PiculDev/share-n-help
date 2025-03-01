@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Bed, Shirt, Sofa, Utensils, Tv, Baby, Shower } from "lucide-react";
+import { Bed, Shirt, Sofa, Utensils, Tv, Baby, Droplets } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Category } from "@/lib/data";
 
@@ -12,15 +12,16 @@ const iconMap: Record<string, React.ReactNode> = {
   utensils: <Utensils className="h-6 w-6" />,
   tv: <Tv className="h-6 w-6" />,
   baby: <Baby className="h-6 w-6" />,
-  shower: <Shower className="h-6 w-6" />
+  droplets: <Droplets className="h-6 w-6" />
 };
 
 interface CategoryCardProps {
   category: Category;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export const CategoryCard = ({ category, className }: CategoryCardProps) => {
+export const CategoryCard = ({ category, className, style }: CategoryCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   
   return (
@@ -34,6 +35,7 @@ export const CategoryCard = ({ category, className }: CategoryCardProps) => {
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      style={style}
     >
       <div className="flex flex-col items-center text-center gap-4">
         <div 

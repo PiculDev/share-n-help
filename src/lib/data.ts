@@ -84,7 +84,7 @@ export const categories: Category[] = [
   {
     id: 'hygiene',
     name: 'Higiene',
-    icon: 'shower',
+    icon: 'droplets',
     description: 'Produtos de higiene pessoal e limpeza'
   },
   {
