@@ -166,23 +166,6 @@ export const mockDonationItems: DonationItem[] = [
     createdAt: '2023-04-30T16:20:00Z',
     updatedAt: '2023-05-05T10:10:00Z'
   },
-  {
-    id: '5',
-    title: 'Kit de panelas',
-    description: 'Conjunto com 5 panelas em bom estado de conservação. Antiaderente.',
-    categoryId: 'kitchen',
-    condition: 'Bom',
-    imageUrl: 'https://images.unsplash.com/photo-1584474263331-a85ef166be43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    location: 'Porto Alegre, RS',
-    pickupDates: 'Segundas, Quartas e Sextas',
-    pickupTimes: '14h às 18h',
-    contactName: 'Ana Costa',
-    contactPhone: '(51) 94444-4444',
-    contactEmail: 'ana@example.com',
-    status: 'available',
-    createdAt: '2023-05-14T11:30:00Z',
-    updatedAt: '2023-05-14T11:30:00Z'
-  }
 ];
 
 // Mock need requests

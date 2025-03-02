@@ -4,12 +4,16 @@ import { Link, useLocation } from "react-router-dom";
 import { Home, Heart, Plus, Search, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import ThemeToggle from "./ThemeComponent";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../firebase"
+
 
 const navLinks = [
   { path: "/", label: "Início", icon: Home },
   { path: "/browse", label: "Explorar", icon: Search },
   { path: "/donate", label: "Doar", icon: Plus },
-  { path: "/requests", label: "Solicitações", icon: Heart },
+  { path: "/requests/new", label: "Solicitações", icon: Heart },
 ];
 
 interface LayoutProps {
@@ -20,17 +24,23 @@ export const Layout = ({ children }: LayoutProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  
+
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    console.log("Usuário logado:", result.user);
+  };
+
   // Handle scroll effect for header
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  
+
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -52,12 +62,12 @@ export const Layout = ({ children }: LayoutProps) => {
               Share<span className="text-primary">&</span>Help
             </span>
           </Link>
-          
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
-              <Link 
-                key={link.path} 
+              <Link
+                key={link.path}
                 to={link.path}
                 className={cn(
                   "px-4 py-2 rounded-md flex items-center gap-2 transition-all",
@@ -70,17 +80,16 @@ export const Layout = ({ children }: LayoutProps) => {
                 <span>{link.label}</span>
               </Link>
             ))}
-            
-            <Link to="/login" className="ml-2">
-              <Button variant="outline" size="sm" className="h-9">
-                Entrar
-              </Button>
-            </Link>
+
+            <Button variant="outline" size="sm" className="h-9" onClick={() => signInWithGoogle()}>
+              Entrar
+            </Button>
+            <ThemeToggle />
           </nav>
-          
+
           {/* Mobile Menu Button */}
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             className="md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -93,14 +102,14 @@ export const Layout = ({ children }: LayoutProps) => {
           </Button>
         </div>
       </header>
-      
+
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 bg-background/95 pt-20 px-6 md:hidden animate-fade-in">
           <nav className="flex flex-col gap-2">
             {navLinks.map((link) => (
-              <Link 
-                key={link.path} 
+              <Link
+                key={link.path}
                 to={link.path}
                 className={cn(
                   "px-4 py-3 rounded-md flex items-center gap-3 transition-all",
@@ -113,18 +122,18 @@ export const Layout = ({ children }: LayoutProps) => {
                 <span className="text-base">{link.label}</span>
               </Link>
             ))}
-            
+            <ThemeToggle />
             <Link to="/login" className="mt-2">
-              <Button className="w-full">Entrar</Button>
+              <Button className="w-full" onClick={() => signInWithGoogle()}>Entrar</Button>
             </Link>
           </nav>
         </div>
       )}
-      
+
       <main className="flex-1 pt-20 overflow-x-hidden">
         {children}
       </main>
-      
+
       <footer className="border-t border-border/30 py-8 px-6 mt-auto">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -132,7 +141,7 @@ export const Layout = ({ children }: LayoutProps) => {
               <Heart className="h-5 w-5 text-primary" fill="currentColor" />
               <span className="font-medium">Share<span className="text-primary">&</span>Help</span>
             </div>
-            
+
             <div className="text-sm text-muted-foreground">
               Conectando doadores e pessoas necessitadas
             </div>
