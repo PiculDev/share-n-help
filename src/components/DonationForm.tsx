@@ -24,13 +24,13 @@ export const DonationForm = () => {
 
       if (docRef) {
 
-        toast.success(<Check /> + "Bem Cadastrado com sucesso!");
+        toast.success("Bem Cadastrado com sucesso!");
       }
       return docRef.id;;
 
     } catch (error) {
 
-      toast.error("Erro ao salvar imóvel:", error);
+      toast.error("Erro ao salvar Bem:", error);
       throw error;
     }
   }
@@ -45,7 +45,9 @@ export const DonationForm = () => {
     pickupTimes: "",
     contactName: "",
     contactPhone: "",
-    contactEmail: ""
+    contactEmail: "",
+    status: "available",
+    imageUrl: "http://plone.ufpb.br/labeet/contents/paginas/acervo-brazinst/copy_of_cordofones/udecra/sem-imagem.jpg/@@images/image.jpeg",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -68,6 +70,12 @@ export const DonationForm = () => {
     }
   };
 
+  const isPhoneValid = (phone: string) => {
+    const regex = /^\(\d{2}\) \d{5}-\d{4}$/;
+    return regex.test(phone);
+  };
+  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -86,12 +94,16 @@ export const DonationForm = () => {
       return;
     }
 
+    if (formData.contactPhone && !isPhoneValid(formData.contactPhone)) {
+      toast.error("Telefone inválido. O formato correto é (XX) XXXXX-XXXX.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     salvarBem(formData);
 
     setTimeout(() => {
-      toast.success("Item cadastrado para doação com sucesso!");
       setIsSubmitting(false);
       navigate("/browse");
     }, 1500);

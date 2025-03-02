@@ -1,13 +1,11 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, Heart, Plus, Search, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import ThemeToggle from "./ThemeComponent";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../firebase"
-
+import { useAuth } from "./AuthContext";
 
 const navLinks = [
   { path: "/", label: "Início", icon: Home },
@@ -23,15 +21,8 @@ interface LayoutProps {
 export const Layout = ({ children }: LayoutProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const location = useLocation();
+  const { user, signInWithGoogle, signOut } = useAuth();  // Pegue as funções de login e logout
 
-  const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    console.log("Usuário logado:", result.user);
-  };
-
-  // Handle scroll effect for header
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -41,7 +32,6 @@ export const Layout = ({ children }: LayoutProps) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
@@ -55,12 +45,7 @@ export const Layout = ({ children }: LayoutProps) => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <Heart className="h-6 w-6 text-primary animate-fade-in" fill="currentColor" />
-            <span className={cn(
-              "font-semibold text-lg transition-all",
-              isScrolled ? "text-foreground" : "text-foreground"
-            )}>
-              Share<span className="text-primary">&</span>Help
-            </span>
+            <span className="font-semibold text-lg text-foreground">Share<span className="text-primary">&</span>Help</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -81,10 +66,29 @@ export const Layout = ({ children }: LayoutProps) => {
               </Link>
             ))}
 
-            <Button variant="outline" size="sm" className="h-9" onClick={() => signInWithGoogle()}>
-              Entrar
-            </Button>
-            <ThemeToggle />
+            {user ? (
+              <Popover>
+                <PopoverTrigger>
+                  <img
+                    src={user.photoURL}
+                    alt="Usuário"
+                    className="h-9 w-9 rounded-full cursor-pointer border border-gray-300"
+                  />
+                </PopoverTrigger>
+                <PopoverContent className="w-48 p-2 flex flex-col gap-2 items-center">
+                  <span className="text-sm text-center font-medium">{user.displayName}</span>
+                  <div className="border w-full"></div>
+                  <ThemeToggle />
+                  <Button variant="destructive" className="w-full" size="sm" onClick={signOut}>
+                    Sair
+                  </Button>
+                </PopoverContent>
+              </Popover>
+            ) : (
+              <Button variant="outline" size="sm" className="h-9" onClick={signInWithGoogle}>
+                Entrar
+              </Button>
+            )}
           </nav>
 
           {/* Mobile Menu Button */}
@@ -94,19 +98,15 @@ export const Layout = ({ children }: LayoutProps) => {
             className="md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            {isMobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
       </header>
 
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-background/95 pt-20 px-6 md:hidden animate-fade-in">
-          <nav className="flex flex-col gap-2">
+        <div className="fixed inset-0 z-40 bg-background/95 pt-20 px-6 md:hidden animate-fade-in flex flex-col items-center">
+          <nav className="flex flex-col gap-2 w-full max-w-xs">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -122,10 +122,31 @@ export const Layout = ({ children }: LayoutProps) => {
                 <span className="text-base">{link.label}</span>
               </Link>
             ))}
-            <ThemeToggle />
-            <Link to="/login" className="mt-2">
-              <Button className="w-full" onClick={() => signInWithGoogle()}>Entrar</Button>
-            </Link>
+            {user ? (
+              <div className="flex flex-col items-center mt-4">
+                <Popover>
+                  <PopoverTrigger>
+                    <img
+                      src={user.photoURL}
+                      alt="Usuário"
+                      className="h-12 w-12 rounded-full cursor-pointer border border-gray-300"
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-2 flex flex-col gap-2 items-center">
+                    <span className="text-sm text-center font-medium">{user.displayName}</span>
+                    <div className="border w-full"></div>
+                    <ThemeToggle />
+                    <Button variant="destructive" className="w-full" size="sm" onClick={signOut}>
+                      Sair
+                    </Button>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            ) : (
+              <Button variant="outline" size="sm" className="h-9 mt-4" onClick={signInWithGoogle}>
+                Entrar
+              </Button>
+            )}
           </nav>
         </div>
       )}
@@ -133,21 +154,6 @@ export const Layout = ({ children }: LayoutProps) => {
       <main className="flex-1 pt-20 overflow-x-hidden">
         {children}
       </main>
-
-      <footer className="border-t border-border/30 py-8 px-6 mt-auto">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Heart className="h-5 w-5 text-primary" fill="currentColor" />
-              <span className="font-medium">Share<span className="text-primary">&</span>Help</span>
-            </div>
-
-            <div className="text-sm text-muted-foreground">
-              Conectando doadores e pessoas necessitadas
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

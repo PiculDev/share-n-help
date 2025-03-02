@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
 
 export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(() => {
@@ -21,8 +22,10 @@ export default function ThemeToggle() {
   }, [isDark]);
 
   return (
-    <Button variant="outline" size="sm" className=" h-9 ml-2" onClick={() => setIsDark(!isDark)}>
-      {isDark ? "🌙" : "☀️"}
-    </Button>
+
+    <div className="flex items-center space-x-2">
+      <Label htmlFor="theme">{isDark ? "Modo Claro" : "Modo Escuro"}</Label>
+      <Switch id="theme" onClick={() => setIsDark(!isDark)} />
+    </div>
   );
 }

@@ -9,8 +9,7 @@ export const CTASection = () => {
         <div className="relative rounded-2xl overflow-hidden">
           <div className="absolute inset-0">
             <img 
-              src="https://images.unsplash.com/photo-1593113598332-cd59a93f9efa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" 
-              alt="People helping each other" 
+              src="https://images.unsplash.com/photo-1533659124865-d6072dc035e1?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary/30" />
