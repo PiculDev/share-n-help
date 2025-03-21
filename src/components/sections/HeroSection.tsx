@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Heart, Plus, Search } from "lucide-react";
@@ -12,7 +11,7 @@ export const HeroSection = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setIsLoaded(true)
+    setIsLoaded(true);
   }, []);
 
   return (
@@ -26,29 +25,39 @@ export const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent" />
       <div className="relative max-w-7xl mx-auto px-6 py-16 md:py-24">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className={`space-y-6 ${isLoaded ? "animate-slide-up" : "opacity-0"}`}>
+          <div
+            className={`space-y-6 ${
+              isLoaded ? "animate-slide-up" : "opacity-0"
+            }`}
+          >
             <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
               <Heart className="h-4 w-4 mr-2" fill="currentColor" />
-              <ShinyText text="Conecte-se com quem precisa" disabled={false} speed={3} className='shiny-text' />
+              <ShinyText
+                text="Conecte-se com quem precisa"
+                disabled={false}
+                speed={3}
+                className="shiny-text"
+              />
               <span></span>
             </div>
-            <p>
+            <div>
               <SplitText
                 text="Doe o que não usa e ajude quem precisa"
                 className="text-4xl md:text-5xl font-bold tracking-tight"
                 delay={60}
-                animationFrom={{ opacity: 0, transform: 'translate3d(0,50px,0)' }}
-                animationTo={{ opacity: 1, transform: 'translate3d(0,0,0)' }}
+                animationFrom={{
+                  opacity: 0,
+                  transform: "translate3d(0,50px,0)",
+                }}
+                animationTo={{ opacity: 1, transform: "translate3d(0,0,0)" }}
                 threshold={0.2}
                 rootMargin="-50px"
               />
-            </p>
-
+            </div>
 
             <p className="text-xl text-muted-foreground">
-              Uma plataforma para facilitar a doação de itens
-              para pessoas afetadas
-              por desastres, imigrantes e refugiados.
+              Uma plataforma para facilitar a doação de itens para pessoas
+              afetadas por desastres, imigrantes e refugiados.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -68,8 +77,11 @@ export const HeroSection = () => {
             </div>
           </div>
 
-          <div className={`relative ${isLoaded ? "animate-fade-in" : "opacity-0"} ml-36`}>
-
+          <div
+            className={`relative ${
+              isLoaded ? "animate-fade-in" : "opacity-0"
+            } ml-36`}
+          >
             <TiltedCard
               imageSrc="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               altText="Passe amor!"
@@ -83,7 +95,6 @@ export const HeroSection = () => {
               showMobileWarning={false}
               showTooltip={true}
               displayOverlayContent={true}
-
             />
           </div>
         </div>

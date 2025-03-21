@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -20,27 +19,28 @@ export const RequestForm = () => {
     email: "",
     location: "",
     reason: "",
-    items: [] as string[]
+    items: [] as string[],
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleItemCheck = (id: string, checked: boolean) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       items: checked
         ? [...prev.items, id]
-        : prev.items.filter(item => item !== id)
+        : prev.items.filter((item) => item !== id),
     }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
     if (!formData.name.trim()) {
       toast.error("Por favor, informe seu nome");
       return;
@@ -60,11 +60,7 @@ export const RequestForm = () => {
       toast.error("Por favor, selecione pelo menos um tipo de item necessário");
       return;
     }
-
-    // Submit logic
-    setIsSubmitting(true);
-
-    // Simulate API call
+    //ADICIONAR FIREBASE
     setTimeout(() => {
       toast.success("Solicitação cadastrada com sucesso!");
       setIsSubmitting(false);
@@ -79,7 +75,9 @@ export const RequestForm = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-muted-foreground" />
-              <Label htmlFor="name">Nome completo <span className="text-destructive">*</span></Label>
+              <Label htmlFor="name">
+                Nome completo <span className="text-destructive">*</span>
+              </Label>
             </div>
             <Input
               id="name"
@@ -95,7 +93,9 @@ export const RequestForm = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Phone className="h-5 w-5 text-muted-foreground" />
-                <Label htmlFor="phone">Telefone <span className="text-destructive">*</span></Label>
+                <Label htmlFor="phone">
+                  Telefone <span className="text-destructive">*</span>
+                </Label>
               </div>
               <Input
                 id="phone"
@@ -126,7 +126,9 @@ export const RequestForm = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-muted-foreground" />
-              <Label htmlFor="location">Localização <span className="text-destructive">*</span></Label>
+              <Label htmlFor="location">
+                Localização <span className="text-destructive">*</span>
+              </Label>
             </div>
             <Input
               id="location"
@@ -137,14 +139,18 @@ export const RequestForm = () => {
               required
             />
             <p className="text-xs text-muted-foreground">
-              Informe sua cidade e estado para que doadores próximos possam te encontrar.
+              Informe sua cidade e estado para que doadores próximos possam te
+              encontrar.
             </p>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-muted-foreground" />
-              <Label htmlFor="reason">Motivo da solicitação <span className="text-destructive">*</span></Label>
+              <Label htmlFor="reason">
+                Motivo da solicitação{" "}
+                <span className="text-destructive">*</span>
+              </Label>
             </div>
             <Textarea
               id="reason"
@@ -160,9 +166,12 @@ export const RequestForm = () => {
 
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-medium mb-3">Itens necessários <span className="text-destructive">*</span></h3>
+            <h3 className="text-lg font-medium mb-3">
+              Itens necessários <span className="text-destructive">*</span>
+            </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Selecione os tipos de itens que você está precisando. Você pode selecionar mais de um.
+              Selecione os tipos de itens que você está precisando. Você pode
+              selecionar mais de um.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -198,41 +207,43 @@ export const RequestForm = () => {
                 <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary w-5 h-5 text-xs font-medium">
                   1
                 </span>
-                <span>Cadastre sua solicitação com todos os detalhes necessários.</span>
+                <span>
+                  Cadastre sua solicitação com todos os detalhes necessários.
+                </span>
               </li>
               <li className="flex gap-2">
                 <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary w-5 h-5 text-xs font-medium">
                   2
                 </span>
-                <span>Sua solicitação ficará visível para possíveis doadores.</span>
+                <span>
+                  Sua solicitação ficará visível para possíveis doadores.
+                </span>
               </li>
               <li className="flex gap-2">
                 <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary w-5 h-5 text-xs font-medium">
                   3
                 </span>
-                <span>Os doadores entrarão em contato diretamente com você.</span>
+                <span>
+                  Os doadores entrarão em contato diretamente com você.
+                </span>
               </li>
               <li className="flex gap-2">
                 <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary w-5 h-5 text-xs font-medium">
                   4
                 </span>
-                <span>Você poderá atualizar sua solicitação à medida que receber itens.</span>
+                <span>
+                  Você poderá atualizar sua solicitação à medida que receber
+                  itens.
+                </span>
               </li>
             </ul>
           </div>
 
           <div className="pt-4 space-x-4 flex justify-end">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => navigate(-1)}
-            >
+            <Button type="button" variant="ghost" onClick={() => navigate(-1)}>
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Enviando..." : "Cadastrar solicitação"}
             </Button>
           </div>

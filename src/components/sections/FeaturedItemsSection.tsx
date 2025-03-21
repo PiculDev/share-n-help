@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,9 +9,11 @@ interface FeaturedItemsSectionProps {
   isLoaded: boolean;
 }
 
-export const FeaturedItemsSection = ({ items, isLoaded }: FeaturedItemsSectionProps) => {
+export const FeaturedItemsSection = ({
+  items,
+  isLoaded,
+}: FeaturedItemsSectionProps) => {
   if (items.length === 0) return null;
-  
   return (
     <section className="py-16">
       <div className="max-w-7xl mx-auto px-6">
@@ -23,7 +24,7 @@ export const FeaturedItemsSection = ({ items, isLoaded }: FeaturedItemsSectionPr
               Alguns dos itens recentemente disponibilizados para doação
             </p>
           </div>
-          
+
           <Button asChild variant="ghost" className="gap-1 md:self-end">
             <Link to="/browse">
               Ver todos
@@ -31,16 +32,16 @@ export const FeaturedItemsSection = ({ items, isLoaded }: FeaturedItemsSectionPr
             </Link>
           </Button>
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {items.map((item) => (
-            <DonationItem 
-              key={item.id} 
-              item={item} 
+            <DonationItem
+              key={item.id}
+              item={item}
               className={isLoaded ? "animate-slide-up" : "opacity-0"}
-              style={{ 
+              style={{
                 animationDelay: `${items.indexOf(item) * 100}ms`,
-                opacity: isLoaded ? 1 : 0
+                opacity: isLoaded ? 1 : 0,
               }}
             />
           ))}

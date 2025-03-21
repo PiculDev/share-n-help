@@ -1,13 +1,29 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Clock, Info, Phone, Mail, Calendar, AlertTriangle, Check, X } from "lucide-react";
+import {
+  MapPin,
+  Clock,
+  Info,
+  Phone,
+  Mail,
+  Calendar,
+  AlertTriangle,
+  Check,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { DonationItem, categories } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -20,33 +36,45 @@ interface ItemDetailProps {
 const statusColorMap = {
   available: "bg-green-100 text-green-800 border-green-200",
   reserved: "bg-amber-100 text-amber-800 border-amber-200",
-  donated: "bg-blue-100 text-blue-800 border-blue-200"
+  donated: "bg-blue-100 text-blue-800 border-blue-200",
 };
 
 const statusTextMap = {
   available: "Disponível",
   reserved: "Reservado",
-  donated: "Doado"
+  donated: "Doado",
 };
 
-export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps) => {
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  if (!isValid(date)) {
+    return "Data não disponível";
+  }
+  return format(date, "dd/MM/yyyy");
+};
+
+export const ItemDetail = ({
+  item,
+  onReserve,
+  onMarkAsDonated,
+}: ItemDetailProps) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isReserveDialogOpen, setIsReserveDialogOpen] = useState(false);
   const [isDonatedDialogOpen, setIsDonatedDialogOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const category = categories.find(c => c.id === item.categoryId);
+  const category = categories.find((c) => c.id === item.categoryId);
   const navigate = useNavigate();
-  
+
   const handleReserve = () => {
     if (onReserve) {
       onReserve(name, phone);
     }
     setIsReserveDialogOpen(false);
     toast.success("Item reservado com sucesso!");
-    // In a real app, we would refresh or update the item
+    // CORRIGIR
   };
-  
+
   const handleMarkAsDonated = () => {
     if (onMarkAsDonated) {
       onMarkAsDonated();
@@ -55,31 +83,33 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
     toast.success("Item marcado como doado!");
     navigate("/browse");
   };
-  
+
   const isAvailable = item.status === "available";
   const isReserved = item.status === "reserved";
   const isDonated = item.status === "donated";
-  
+
   return (
     <div className="animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="relative rounded-lg overflow-hidden border border-border/30">
-            <div className={cn(
-              "relative aspect-square",
-              isImageLoaded ? "img-loaded" : "img-loading"
-            )}>
-              <img 
-                src={item.imageUrl} 
+            <div
+              className={cn(
+                "relative aspect-square",
+                isImageLoaded ? "img-loaded" : "img-loading"
+              )}
+            >
+              <img
+                src={item.imageUrl}
                 alt={item.title}
                 className="w-full h-full object-cover"
                 onLoad={() => setIsImageLoaded(true)}
               />
             </div>
-            
+
             <div className="absolute top-4 left-4">
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className={cn(
                   "px-3 py-1 text-sm font-medium",
                   statusColorMap[item.status]
@@ -89,18 +119,20 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
               </Badge>
             </div>
           </div>
-          
+
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Informações de contato</h3>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {item.contactName && (
                 <div className="rounded-lg border border-border/50 p-4 bg-card">
                   <div className="font-medium mb-1">Nome</div>
-                  <div className="text-muted-foreground">{item.contactName}</div>
+                  <div className="text-muted-foreground">
+                    {item.contactName}
+                  </div>
                 </div>
               )}
-              
+
               {item.contactPhone && (
                 <div className="rounded-lg border border-border/50 p-4 bg-card">
                   <div className="font-medium mb-1">Telefone</div>
@@ -110,7 +142,7 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
                   </div>
                 </div>
               )}
-              
+
               {item.contactEmail && (
                 <div className="rounded-lg border border-border/50 p-4 bg-card">
                   <div className="font-medium mb-1">E-mail</div>
@@ -123,7 +155,7 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
             </div>
           </div>
         </div>
-        
+
         <div className="space-y-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -136,34 +168,34 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
                 Estado: {item.condition}
               </Badge>
             </div>
-            
+
             <h1 className="text-2xl font-semibold">{item.title}</h1>
-            
+
             <div className="mt-4 space-y-2 text-muted-foreground">
               <div className="flex items-start gap-2">
                 <MapPin className="h-5 w-5 shrink-0 mt-0.5" />
                 <span>{item.location}</span>
               </div>
-              
+
               <div className="flex items-start gap-2">
                 <Clock className="h-5 w-5 shrink-0 mt-0.5" />
-                <span>{item.pickupDates}, {item.pickupTimes}</span>
+                <span>
+                  {item.pickupDates}, {item.pickupTimes}
+                </span>
               </div>
-              
+
               <div className="flex items-start gap-2">
                 <Calendar className="h-5 w-5 shrink-0 mt-0.5" />
-                <span>Cadastrado em {format(new Date(item.createdAt), "dd/MM/yyyy")}</span>
+                <span>Cadastrado em {formatDate(item.createdAt)}</span>
               </div>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <h3 className="text-lg font-medium">Descrição</h3>
-            <div className="text-muted-foreground">
-              {item.description}
-            </div>
+            <div className="text-muted-foreground">{item.description}</div>
           </div>
-          
+
           {isReserved && item.reservedBy && (
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
               <div className="flex items-start gap-2">
@@ -172,13 +204,13 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
                   <h4 className="font-medium text-amber-800">Item reservado</h4>
                   <p className="text-sm text-amber-700">
                     Este item está reservado para {item.reservedBy.name} até{" "}
-                    {format(new Date(item.reservedBy.until), "dd/MM/yyyy")}
+                    {formatDate(item.reservedBy.until)}
                   </p>
                 </div>
               </div>
             </div>
           )}
-          
+
           {isDonated && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-start gap-2">
@@ -192,19 +224,19 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
               </div>
             </div>
           )}
-          
+
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             {isAvailable && (
-              <Button 
+              <Button
                 className="flex-1"
                 onClick={() => setIsReserveDialogOpen(true)}
               >
                 Tenho interesse
               </Button>
             )}
-            
+
             {!isDonated && (
-              <Button 
+              <Button
                 variant="outline"
                 className="flex-1"
                 onClick={() => setIsDonatedDialogOpen(true)}
@@ -212,8 +244,8 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
                 Marcar como doado
               </Button>
             )}
-            
-            <Button 
+
+            <Button
               variant="ghost"
               className="flex-1"
               onClick={() => navigate(-1)}
@@ -223,31 +255,32 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
           </div>
         </div>
       </div>
-      
+
       {/* Reserve Dialog */}
       <Dialog open={isReserveDialogOpen} onOpenChange={setIsReserveDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Reservar este item</DialogTitle>
             <DialogDescription>
-              Preencha seus dados para reservar este item. O doador entrará em contato com você.
+              Preencha seus dados para reservar este item. O doador entrará em
+              contato com você.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="name">Seu nome</Label>
-              <Input 
+              <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Digite seu nome completo"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="phone">Seu telefone</Label>
-              <Input 
+              <Input
                 id="phone"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -255,12 +288,15 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
               />
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setIsReserveDialogOpen(false)}>
+            <Button
+              variant="ghost"
+              onClick={() => setIsReserveDialogOpen(false)}
+            >
               Cancelar
             </Button>
-            <Button 
+            <Button
               onClick={handleReserve}
               disabled={!name.trim() || !phone.trim()}
             >
@@ -269,26 +305,26 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Mark as Donated Dialog */}
       <Dialog open={isDonatedDialogOpen} onOpenChange={setIsDonatedDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Marcar como doado</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja marcar este item como doado? Ele não aparecerá mais na lista de itens disponíveis.
+              Tem certeza que deseja marcar este item como doado? Ele não
+              aparecerá mais na lista de itens disponíveis.
             </DialogDescription>
           </DialogHeader>
-          
+
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setIsDonatedDialogOpen(false)}>
+            <Button
+              variant="ghost"
+              onClick={() => setIsDonatedDialogOpen(false)}
+            >
               Cancelar
             </Button>
-            <Button 
-              onClick={handleMarkAsDonated}
-            >
-              Confirmar
-            </Button>
+            <Button onClick={handleMarkAsDonated}>Confirmar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -296,7 +332,6 @@ export const ItemDetail = ({ item, onReserve, onMarkAsDonated }: ItemDetailProps
   );
 };
 
-// Utility function
 function cn(...classes: any[]) {
   return classes.filter(Boolean).join(" ");
 }

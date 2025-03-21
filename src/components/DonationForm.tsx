@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -8,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "@/firebase";
@@ -23,13 +28,10 @@ export const DonationForm = () => {
       const docRef = await addDoc(collection(db, "bens"), bem);
 
       if (docRef) {
-
         toast.success("Bem Cadastrado com sucesso!");
       }
-      return docRef.id;;
-
+      return docRef.id;
     } catch (error) {
-
       toast.error("Erro ao salvar Bem:", error);
       throw error;
     }
@@ -47,16 +49,19 @@ export const DonationForm = () => {
     contactPhone: "",
     contactEmail: "",
     status: "available",
-    imageUrl: "http://plone.ufpb.br/labeet/contents/paginas/acervo-brazinst/copy_of_cordofones/udecra/sem-imagem.jpg/@@images/image.jpeg",
+    imageUrl:
+      "http://plone.ufpb.br/labeet/contents/paginas/acervo-brazinst/copy_of_cordofones/udecra/sem-imagem.jpg/@@images/image.jpeg",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +79,6 @@ export const DonationForm = () => {
     const regex = /^\(\d{2}\) \d{5}-\d{4}$/;
     return regex.test(phone);
   };
-  
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,7 +118,9 @@ export const DonationForm = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="title">Título do item <span className="text-destructive">*</span></Label>
+            <Label htmlFor="title">
+              Título do item <span className="text-destructive">*</span>
+            </Label>
             <Input
               id="title"
               name="title"
@@ -126,7 +132,9 @@ export const DonationForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descrição <span className="text-destructive">*</span></Label>
+            <Label htmlFor="description">
+              Descrição <span className="text-destructive">*</span>
+            </Label>
             <Textarea
               id="description"
               name="description"
@@ -140,9 +148,13 @@ export const DonationForm = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="categoryId">Categoria <span className="text-destructive">*</span></Label>
+              <Label htmlFor="categoryId">
+                Categoria <span className="text-destructive">*</span>
+              </Label>
               <Select
-                onValueChange={(value) => handleSelectChange("categoryId", value)}
+                onValueChange={(value) =>
+                  handleSelectChange("categoryId", value)
+                }
                 value={formData.categoryId}
                 required
               >
@@ -160,23 +172,33 @@ export const DonationForm = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Estado do item <span className="text-destructive">*</span></Label>
+              <Label>
+                Estado do item <span className="text-destructive">*</span>
+              </Label>
               <RadioGroup
                 value={formData.condition}
-                onValueChange={(value) => handleSelectChange("condition", value)}
+                onValueChange={(value) =>
+                  handleSelectChange("condition", value)
+                }
                 className="flex space-x-4"
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="excellent" id="excellent" />
-                  <Label htmlFor="excellent" className="cursor-pointer">Ótimo</Label>
+                  <Label htmlFor="excellent" className="cursor-pointer">
+                    Ótimo
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="good" id="good" />
-                  <Label htmlFor="good" className="cursor-pointer">Bom</Label>
+                  <Label htmlFor="good" className="cursor-pointer">
+                    Bom
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="fair" id="fair" />
-                  <Label htmlFor="fair" className="cursor-pointer">Regular</Label>
+                  <Label htmlFor="fair" className="cursor-pointer">
+                    Regular
+                  </Label>
                 </div>
               </RadioGroup>
             </div>
@@ -205,7 +227,9 @@ export const DonationForm = () => {
               ) : (
                 <div className="text-center">
                   <Upload className="mx-auto h-10 w-10 text-muted-foreground mb-2" />
-                  <div className="text-sm font-medium">Arraste uma imagem ou clique para fazer upload</div>
+                  <div className="text-sm font-medium">
+                    Arraste uma imagem ou clique para fazer upload
+                  </div>
                   <p className="mt-1 text-xs text-muted-foreground">
                     PNG, JPG ou JPEG (máx. 5MB)
                   </p>
@@ -235,7 +259,9 @@ export const DonationForm = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-muted-foreground" />
-              <Label htmlFor="location">Local de retirada <span className="text-destructive">*</span></Label>
+              <Label htmlFor="location">
+                Local de retirada <span className="text-destructive">*</span>
+              </Label>
             </div>
             <Input
               id="location"
@@ -251,7 +277,9 @@ export const DonationForm = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-muted-foreground" />
-                <Label htmlFor="pickupDates">Dias disponíveis <span className="text-destructive">*</span></Label>
+                <Label htmlFor="pickupDates">
+                  Dias disponíveis <span className="text-destructive">*</span>
+                </Label>
               </div>
               <Input
                 id="pickupDates"
@@ -266,7 +294,9 @@ export const DonationForm = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-muted-foreground" />
-                <Label htmlFor="pickupTimes">Horários <span className="text-destructive">*</span></Label>
+                <Label htmlFor="pickupTimes">
+                  Horários <span className="text-destructive">*</span>
+                </Label>
               </div>
               <Input
                 id="pickupTimes"
@@ -282,7 +312,8 @@ export const DonationForm = () => {
           <div className="space-y-4 pt-4">
             <h3 className="text-lg font-medium">Informações de contato</h3>
             <p className="text-sm text-muted-foreground">
-              Pelo menos um método de contato é necessário para que os interessados possam falar com você.
+              Pelo menos um método de contato é necessário para que os
+              interessados possam falar com você.
             </p>
 
             <div className="space-y-2">
@@ -323,17 +354,10 @@ export const DonationForm = () => {
           </div>
 
           <div className="pt-4 space-x-4 flex justify-end">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => navigate(-1)}
-            >
+            <Button type="button" variant="ghost" onClick={() => navigate(-1)}>
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Enviando..." : "Cadastrar doação"}
             </Button>
           </div>
