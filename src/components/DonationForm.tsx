@@ -75,11 +75,6 @@ export const DonationForm = () => {
     }
   };
 
-  const isPhoneValid = (phone: string) => {
-    const regex = /^\(\d{2}\) \d{5}-\d{4}$/;
-    return regex.test(phone);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -95,11 +90,6 @@ export const DonationForm = () => {
 
     if (!formData.location.trim()) {
       toast.error("Por favor, informe o local de retirada");
-      return;
-    }
-
-    if (formData.contactPhone && !isPhoneValid(formData.contactPhone)) {
-      toast.error("Telefone inválido. O formato correto é (XX) XXXXX-XXXX.");
       return;
     }
 
