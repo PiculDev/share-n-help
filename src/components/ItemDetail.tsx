@@ -1,36 +1,36 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  MapPin,
-  Clock,
-  Info,
-  Phone,
-  Mail,
-  Calendar,
-  AlertTriangle,
-  Check,
-  X,
-} from "lucide-react";
-import { toast } from "sonner";
-import { format, isValid } from "date-fns";
-import { DonationItem, categories } from "@/lib/data";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { db } from "@/firebase";
+import { DonationItem, DonationItemInterest, categories } from "@/lib/data";
+import { format, isValid } from "date-fns";
+import { arrayUnion, doc, updateDoc } from "firebase/firestore";
+import {
+  Calendar,
+  Check,
+  Clock,
+  Info,
+  Mail,
+  MapPin,
+  Phone,
+} from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useAuth } from "./AuthContext";
+import { getConditionLabel } from "./DonationItem";
 
 interface ItemDetailProps {
   item: DonationItem;
-  onReserve?: (name: string, phone: string) => void;
-  onMarkAsDonated?: () => void;
 }
 
 const statusColorMap = {
@@ -53,59 +53,111 @@ const formatDate = (dateString: string) => {
   return format(date, "dd/MM/yyyy");
 };
 
-export const ItemDetail = ({
-  item,
-  onReserve,
-  onMarkAsDonated,
-}: ItemDetailProps) => {
+async function addInterestToItem(
+  itemId: string,
+  interest: DonationItemInterest
+) {
+  try {
+    await updateDoc(doc(db, "bens", itemId), {
+      interests: arrayUnion(interest),
+    });
+    toast.success("Interesse adicionado!");
+  } catch (error) {
+    toast.error("Erro ao adicionar interesse:", error);
+  }
+}
+
+export const ItemDetail = ({ item }: ItemDetailProps) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isReserveDialogOpen, setIsReserveDialogOpen] = useState(false);
   const [isDonatedDialogOpen, setIsDonatedDialogOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const category = categories.find((c) => c.id === item.categoryId);
   const navigate = useNavigate();
 
-  const handleReserve = () => {
-    if (onReserve) {
-      onReserve(name, phone);
+  const { user } = useAuth();
+
+  const reserveItem = async () => {
+    const alreadyExists = item.interests?.some(
+      (interest) =>
+        interest.email === user?.email ||
+        interest.phone === phone ||
+        interest.email === email
+    );
+
+    if (alreadyExists) {
+      toast.error(
+        "Já foi demonstrado interesse neste item com este e-mail ou telefone."
+      );
+      return;
     }
-    setIsReserveDialogOpen(false);
-    toast.success("Item reservado com sucesso!");
-    // CORRIGIR
+
+    const newInterest: DonationItemInterest = {
+      name,
+      phone,
+      email,
+    };
+
+    try {
+      await addInterestToItem(item.id, newInterest);
+      toast.success("Item reservado com sucesso!");
+      setIsReserveDialogOpen(false);
+      navigate("/browse");
+    } catch (error) {
+      toast.error("Erro ao reservar item.");
+    }
   };
 
-  const handleMarkAsDonated = () => {
-    if (onMarkAsDonated) {
-      onMarkAsDonated();
+  const donateItem = async () => {
+    try {
+      await updateDoc(doc(db, "bens", item.id), {
+        status: "donated",
+        updatedAt: new Date().toISOString(),
+      });
+      toast.success("Item marcado como doado!");
+      setIsDonatedDialogOpen(false);
+      navigate("/browse");
+    } catch (error) {
+      toast.error("Erro ao marcar item como doado.");
     }
-    setIsDonatedDialogOpen(false);
-    toast.success("Item marcado como doado!");
-    navigate("/browse");
   };
 
   const isAvailable = item.status === "available";
-  const isReserved = item.status === "reserved";
+  const hasInterests = item.interests?.length > 0;
   const isDonated = item.status === "donated";
+  const isItemOwner = item.userId && item.userId === user?.uid;
 
   return (
     <div className="animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="relative rounded-lg overflow-hidden border border-border/30">
-            <div
-              className={cn(
-                "relative aspect-square",
-                isImageLoaded ? "img-loaded" : "img-loading"
-              )}
-            >
-              <img
-                src={item.imageUrl}
-                alt={item.title}
-                className="w-full h-full object-cover"
-                onLoad={() => setIsImageLoaded(true)}
-              />
-            </div>
+            {item.imageUrl ? (
+              <div
+                className={cn(
+                  "relative aspect-square",
+                  isImageLoaded ? "img-loaded" : "img-loading"
+                )}
+              >
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="w-full h-full object-cover"
+                  onLoad={() => setIsImageLoaded(true)}
+                />
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  "relative aspect-square",
+                  "font-bold text-center content-center"
+                )}
+              >
+                Sem Imagem
+              </div>
+            )}
 
             <div className="absolute top-4 left-4">
               <Badge
@@ -120,40 +172,42 @@ export const ItemDetail = ({
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Informações de contato</h3>
+          {!isItemOwner && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Informações de contato</h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {item.contactName && (
-                <div className="rounded-lg border border-border/50 p-4 bg-card">
-                  <div className="font-medium mb-1">Nome</div>
-                  <div className="text-muted-foreground">
-                    {item.contactName}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {item.contactName && (
+                  <div className="rounded-lg border border-border/50 p-4 bg-card">
+                    <div className="font-medium mb-1">Nome</div>
+                    <div className="text-muted-foreground">
+                      {item.contactName}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {item.contactPhone && (
-                <div className="rounded-lg border border-border/50 p-4 bg-card">
-                  <div className="font-medium mb-1">Telefone</div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Phone className="h-4 w-4" />
-                    <span>{item.contactPhone}</span>
+                {item.contactPhone && (
+                  <div className="rounded-lg border border-border/50 p-4 bg-card">
+                    <div className="font-medium mb-1">Telefone</div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Phone className="h-4 w-4" />
+                      <span>{item.contactPhone}</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {item.contactEmail && (
-                <div className="rounded-lg border border-border/50 p-4 bg-card">
-                  <div className="font-medium mb-1">E-mail</div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Mail className="h-4 w-4" />
-                    <span>{item.contactEmail}</span>
+                {item.contactEmail && (
+                  <div className="rounded-lg border border-border/50 p-4 bg-card">
+                    <div className="font-medium mb-1">E-mail</div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Mail className="h-4 w-4" />
+                      <span>{item.contactEmail}</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -165,7 +219,7 @@ export const ItemDetail = ({
                 </Badge>
               )}
               <Badge variant="outline" className="px-2 py-1 text-xs">
-                Estado: {item.condition}
+                Estado: {getConditionLabel(item.condition)}
               </Badge>
             </div>
 
@@ -196,15 +250,16 @@ export const ItemDetail = ({
             <div className="text-muted-foreground">{item.description}</div>
           </div>
 
-          {isReserved && item.reservedBy && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          {hasInterests && !isItemOwner && (
+            <div className="bg-teal-100 border border-teal-200 rounded-lg p-4">
               <div className="flex items-start gap-2">
-                <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <Info className="h-5 w-5 text-teal-800 shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-amber-800">Item reservado</h4>
-                  <p className="text-sm text-amber-700">
-                    Este item está reservado para {item.reservedBy.name} até{" "}
-                    {formatDate(item.reservedBy.until)}
+                  <p className="text-sm text-teal-700">
+                    {item.interests?.length === 1
+                      ? "1 pessoa já demonstrou interesse neste item. "
+                      : `${item.interests?.length ?? 0} pessoas já demonstraram interesse neste item. `}
+                    Talvez ele fique indisponível em breve.
                   </p>
                 </div>
               </div>
@@ -226,7 +281,7 @@ export const ItemDetail = ({
           )}
 
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            {isAvailable && (
+            {isAvailable && (!item.userId || item.userId !== user?.uid) && (
               <Button
                 className="flex-1"
                 onClick={() => setIsReserveDialogOpen(true)}
@@ -235,9 +290,9 @@ export const ItemDetail = ({
               </Button>
             )}
 
-            {!isDonated && (
+            {isItemOwner && !isDonated && (
               <Button
-                variant="outline"
+                variant="secondary"
                 className="flex-1"
                 onClick={() => setIsDonatedDialogOpen(true)}
               >
@@ -255,6 +310,37 @@ export const ItemDetail = ({
           </div>
         </div>
       </div>
+
+      {isItemOwner && !isDonated && (
+        <div className="space-y-4 mt-4">
+          <h3 className="text-lg font-medium">
+            Interessados{" "}
+            <span className="bg-teal-100 px-2 py-1 rounded-md text-teal-600">
+              {" "}
+              {item.interests?.length ?? 0}
+            </span>
+          </h3>
+          {item.interests?.length > 0 &&
+            item.interests.map((interest) => (
+              <div
+                key={interest.email + interest.phone}
+                className="mt-6 p-4 bg-card border border-border/50 rounded-lg"
+              >
+                <h4 className="font-medium">{interest.name}</h4>
+                <div className="text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4" />
+                    {interest.phone}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    {interest.email}
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
 
       {/* Reserve Dialog */}
       <Dialog open={isReserveDialogOpen} onOpenChange={setIsReserveDialogOpen}>
@@ -279,6 +365,18 @@ export const ItemDetail = ({
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="contactEmail">E-mail para contato</Label>
+              <Input
+                id="contactEmail"
+                name="contactEmail"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email@exemplo.com"
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="phone">Seu telefone</Label>
               <Input
                 id="phone"
@@ -297,7 +395,7 @@ export const ItemDetail = ({
               Cancelar
             </Button>
             <Button
-              onClick={handleReserve}
+              onClick={reserveItem}
               disabled={!name.trim() || !phone.trim()}
             >
               Reservar item
@@ -324,7 +422,7 @@ export const ItemDetail = ({
             >
               Cancelar
             </Button>
-            <Button onClick={handleMarkAsDonated}>Confirmar</Button>
+            <Button onClick={donateItem}>Confirmar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

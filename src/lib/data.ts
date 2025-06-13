@@ -23,11 +23,14 @@ export type DonationItem = {
   status: ItemStatus;
   createdAt: string;
   updatedAt: string;
-  reservedBy?: {
-    name: string;
-    phone: string;
-    until: string;
-  };
+  userId: string;
+  interests?: DonationItemInterest[];
+};
+
+export type DonationItemInterest = {
+  name: string;
+  phone: string;
+  email: string
 };
 
 export type NeedRequest = {
@@ -90,6 +93,12 @@ export const categories: Category[] = [
     name: "Alimentos",
     icon: "utensils",
     description: "Alimentos não perecíveis",
+  },
+  {
+    id: "other",
+    name: "Outros",
+    icon: "other",
+    description: "Objetos diversificados...",
   },
 ];
 

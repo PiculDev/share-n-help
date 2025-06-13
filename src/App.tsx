@@ -10,7 +10,7 @@ import { Layout } from "./components/Layout";
 import { DonationForm } from "./components/DonationForm";
 import { RequestForm } from "./components/RequestForm";
 import { ItemDetail } from "./components/ItemDetail";
-import { AuthProvider } from "./components/AuthContext";
+import { AuthProvider, useAuth } from "./components/AuthContext";
 import { db } from "./firebase";
 import { categories, DonationItem as DonationItemType } from "@/lib/data";
 import {
@@ -26,11 +26,90 @@ import { X } from "lucide-react";
 
 const queryClient = new QueryClient();
 
+const RegistersPage = () => {
+  const [activeItems, setActiveItems] = useState<DonationItemType[]>([]);
+  // const [isLoading, setIsLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
+
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchDonationItems = async () => {
+      try {
+        // setIsLoading(true);
+
+        const itemsRef = collection(db, "bens");
+        const q = query(itemsRef, where("userId", "==", user.uid));
+        const snapshot = await getDocs(q);
+
+        const items: DonationItemType[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          items.push({
+            id: doc.id,
+            title: data.title,
+            description: data.description,
+            categoryId: data.categoryId,
+            condition: data.condition,
+            imageUrl: data.imageUrl,
+            location: data.location,
+            pickupDates: data.pickupDates,
+            pickupTimes: data.pickupTimes,
+            contactName: data.contactName,
+            contactPhone: data.contactPhone,
+            status: data.status,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            interests: data.interests || undefined,
+            userId: data.userId,
+          });
+        });
+        setActiveItems(items);
+      } catch (err) {
+        // setError("Erro ao carregar os itens.");
+        console.error(err);
+      } finally {
+        // setIsLoading(false);
+      }
+    };
+
+    fetchDonationItems();
+  }, []);
+
+  return (
+    <Layout>
+      <div className="max-w-7xl mx-auto px-6 py-10">
+        <div className="flex flex-col md:flex-row gap-8">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold mb-2">
+              Suas doações cadastradas
+            </h1>
+
+            {activeItems.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {activeItems.map((item) => (
+                  <DonationItem key={item.id} item={item} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 border border-dashed rounded-lg">
+                <p className="text-muted-foreground">
+                  Nenhum item cadastrado para doação ainda.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
 const BrowsePage = () => {
   const [activeItems, setActiveItems] = useState<DonationItemType[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [isLoading, setIsLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -41,7 +120,7 @@ const BrowsePage = () => {
 
     const fetchDonationItems = async () => {
       try {
-        setIsLoading(true);
+        // setIsLoading(true);
 
         const itemsRef = collection(db, "bens");
         const q = query(itemsRef, where("status", "==", "available"));
@@ -65,15 +144,16 @@ const BrowsePage = () => {
             status: data.status,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
-            reservedBy: data.reservedBy || undefined,
+            interests: data.interests,
+            userId: data.userId,
           });
         });
         setActiveItems(items);
       } catch (err) {
-        setError("Erro ao carregar os itens.");
+        // setError("Erro ao carregar os itens.");
         console.error(err);
       } finally {
-        setIsLoading(false);
+        // setIsLoading(false);
       }
     };
 
@@ -232,17 +312,7 @@ const ItemDetailPage = () => {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-6 py-10">
-        <ItemDetail
-          item={item}
-          onReserve={(name, phone) => {
-            // CORRIGIR
-            console.log("Item reservado por", name, phone);
-          }}
-          onMarkAsDonated={() => {
-            // CORRIGIR
-            console.log("Item marcado como doado");
-          }}
-        />
+        <ItemDetail item={item} />
       </div>
     </Layout>
   );
@@ -292,6 +362,7 @@ const App = () => (
             <Route path="/donate" element={<DonatePage />} />
             <Route path="/requests/new" element={<RequestPage />} />
             <Route path="/items/:id" element={<ItemDetailPage />} />
+            <Route path="/registers" element={<RegistersPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
