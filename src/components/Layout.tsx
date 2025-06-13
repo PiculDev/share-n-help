@@ -1,27 +1,61 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Home, Heart, Plus, Search, Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import ThemeToggle from "./ThemeComponent";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Heart, Home, Menu, NotebookText, Plus, Search, X } from "lucide-react";
+import { useEffect, useReducer, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import ThemeToggle from "./ThemeComponent";
 
-const navLinks = [
+let navLinks = [
   { path: "/", label: "Início", icon: Home },
   { path: "/browse", label: "Explorar", icon: Search },
-  { path: "/donate", label: "Doar", icon: Plus },
-  { path: "/requests/new", label: "Solicitações", icon: Heart },
+
+  // { path: "/requests/new", label: "Solicitações", icon: Heart },
 ];
+
+const Cadastros = {
+  path: "/registers",
+  label: "Meus Cadastros",
+  icon: NotebookText,
+};
+
+const Donate = { path: "/donate", label: "Doar", icon: Plus };
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export const Layout = ({ children }: LayoutProps) => {
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, signInWithGoogle, signOut } = useAuth();  // Pegue as funções de login e logout
+  const { user, signInWithGoogle, signOut } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      console.log(user);
+      if (!navLinks.find((nav) => nav.label === Cadastros.label)) {
+        navLinks.push(Cadastros);
+      }
+      if (!navLinks.find((nav) => nav.label === Donate.label)) {
+        navLinks.push(Donate);
+      }
+      forceUpdate();
+    } else {
+      if (navLinks.find((nav) => nav.label === Cadastros.label)) {
+        navLinks = [...navLinks.filter((nav) => nav.label !== Cadastros.label)];
+      }
+      if (navLinks.find((nav) => nav.label === Donate.label)) {
+        navLinks = [...navLinks.filter((nav) => nav.label !== Donate.label)];
+      }
+      forceUpdate();
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,14 +72,21 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 px-6",
-        isScrolled ? "glass-effect shadow-sm" : "bg-transparent"
-      )}>
+      <header
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 px-6",
+          isScrolled ? "glass-effect shadow-sm" : "bg-transparent"
+        )}
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <Heart className="h-6 w-6 text-primary animate-fade-in" fill="currentColor" />
-            <span className="font-semibold text-lg text-foreground">Share<span className="text-primary">&</span>Help</span>
+            <Heart
+              className="h-6 w-6 text-primary animate-fade-in"
+              fill="currentColor"
+            />
+            <span className="font-semibold text-lg text-foreground">
+              Share<span className="text-primary">&</span>Help
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -76,16 +117,28 @@ export const Layout = ({ children }: LayoutProps) => {
                   />
                 </PopoverTrigger>
                 <PopoverContent className="w-48 p-2 flex flex-col gap-2 items-center">
-                  <span className="text-sm text-center font-medium">{user.displayName}</span>
+                  <span className="text-sm text-center font-medium">
+                    {user.displayName}
+                  </span>
                   <div className="border w-full"></div>
                   <ThemeToggle />
-                  <Button variant="destructive" className="w-full" size="sm" onClick={signOut}>
+                  <Button
+                    variant="destructive"
+                    className="w-full"
+                    size="sm"
+                    onClick={signOut}
+                  >
                     Sair
                   </Button>
                 </PopoverContent>
               </Popover>
             ) : (
-              <Button variant="outline" size="sm" className="h-9" onClick={signInWithGoogle}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9"
+                onClick={signInWithGoogle}
+              >
                 Entrar
               </Button>
             )}
@@ -98,7 +151,11 @@ export const Layout = ({ children }: LayoutProps) => {
             className="md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </header>
@@ -133,17 +190,29 @@ export const Layout = ({ children }: LayoutProps) => {
                     />
                   </PopoverTrigger>
                   <PopoverContent className="w-48 p-2 flex flex-col gap-2 items-center">
-                    <span className="text-sm text-center font-medium">{user.displayName}</span>
+                    <span className="text-sm text-center font-medium">
+                      {user.displayName}
+                    </span>
                     <div className="border w-full"></div>
                     <ThemeToggle />
-                    <Button variant="destructive" className="w-full" size="sm" onClick={signOut}>
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      size="sm"
+                      onClick={signOut}
+                    >
                       Sair
                     </Button>
                   </PopoverContent>
                 </Popover>
               </div>
             ) : (
-              <Button variant="outline" size="sm" className="h-9 mt-4" onClick={signInWithGoogle}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 mt-4"
+                onClick={signInWithGoogle}
+              >
                 Entrar
               </Button>
             )}
@@ -151,9 +220,7 @@ export const Layout = ({ children }: LayoutProps) => {
         </div>
       )}
 
-      <main className="flex-1 pt-20 overflow-x-hidden">
-        {children}
-      </main>
+      <main className="flex-1 pt-20 overflow-x-hidden">{children}</main>
     </div>
   );
 };

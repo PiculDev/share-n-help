@@ -1,7 +1,15 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Bed, Shirt, Sofa, Utensils, Tv, Baby, Droplets } from "lucide-react";
+import {
+  Bed,
+  Shirt,
+  Sofa,
+  Utensils,
+  Tv,
+  Baby,
+  Droplets,
+  Ellipsis,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Category } from "@/lib/data";
 
@@ -12,7 +20,8 @@ const iconMap: Record<string, React.ReactNode> = {
   utensils: <Utensils className="h-6 w-6" />,
   tv: <Tv className="h-6 w-6" />,
   baby: <Baby className="h-6 w-6" />,
-  droplets: <Droplets className="h-6 w-6" />
+  droplets: <Droplets className="h-6 w-6" />,
+  other: <Ellipsis className="size-6" />,
 };
 
 interface CategoryCardProps {
@@ -21,11 +30,15 @@ interface CategoryCardProps {
   style?: React.CSSProperties;
 }
 
-export const CategoryCard = ({ category, className, style }: CategoryCardProps) => {
+export const CategoryCard = ({
+  category,
+  className,
+  style,
+}: CategoryCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   return (
-    <Link 
+    <Link
       to={`/browse?category=${category.id}`}
       className={cn(
         "relative overflow-hidden rounded-lg border border-border/30 bg-card p-6",
@@ -38,7 +51,7 @@ export const CategoryCard = ({ category, className, style }: CategoryCardProps) 
       style={style}
     >
       <div className="flex flex-col items-center text-center gap-4">
-        <div 
+        <div
           className={cn(
             "flex items-center justify-center p-3 rounded-full",
             "bg-accent text-primary",
@@ -48,14 +61,16 @@ export const CategoryCard = ({ category, className, style }: CategoryCardProps) 
         >
           {iconMap[category.icon] || <Sofa className="h-6 w-6" />}
         </div>
-        
+
         <div className="space-y-1">
           <h3 className="font-medium text-lg">{category.name}</h3>
-          <p className="text-sm text-muted-foreground">{category.description}</p>
+          <p className="text-sm text-muted-foreground">
+            {category.description}
+          </p>
         </div>
       </div>
-      
-      <div 
+
+      <div
         className={cn(
           "absolute bottom-0 left-0 right-0 h-1 bg-primary/0",
           "transition-all duration-300 ease-in-out",

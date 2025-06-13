@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { DonationItem as DonationItemType } from "@/lib/data";
+import { categories, DonationItem as DonationItemType } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 
 interface DonationItemProps {
@@ -9,7 +9,15 @@ interface DonationItemProps {
   style?: React.CSSProperties;
 }
 
+export function getConditionLabel(condition: string) {
+  if (condition == "excellent") return "Ótimo";
+  if (condition == "good") return "Bom";
+  if (condition == "fair") return "Regular";
+}
+
 export const DonationItem = ({ item, className, style }: DonationItemProps) => {
+  const isDonated = item.status === "donated";
+
   return (
     <div
       className={cn(
@@ -22,11 +30,22 @@ export const DonationItem = ({ item, className, style }: DonationItemProps) => {
     >
       <Link to={`/items/${item.id}`}>
         <div className="aspect-w-4 aspect-h-3">
-          <img
-            src={item.imageUrl}
-            alt={item.title}
-            className="w-full h-full object-cover rounded-t-lg"
-          />
+          {item.imageUrl ? (
+            <img
+              src={item.imageUrl}
+              alt={item.title}
+              className="w-full h-full object-cover rounded-t-lg"
+            />
+          ) : (
+            <div
+              className={cn(
+                "relative aspect-square",
+                "font-bold text-center content-center"
+              )}
+            >
+              Sem Imagem
+            </div>
+          )}{" "}
         </div>
 
         <div className="p-4">
@@ -36,8 +55,11 @@ export const DonationItem = ({ item, className, style }: DonationItemProps) => {
           </p>
 
           <div className="mt-3 flex items-center justify-between">
-            <div>
-              <Badge variant="secondary">{item.condition}</Badge>
+            <div className="space-x-1">
+              <Badge variant="secondary">
+                {getConditionLabel(item.condition)}
+              </Badge>
+              {isDonated && <Badge variant="default">Doado</Badge>}
             </div>
             <div className="text-xs text-muted-foreground">{item.location}</div>
           </div>

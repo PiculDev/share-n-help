@@ -17,11 +17,13 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "@/firebase";
+import { useAuth } from "./AuthContext";
 
 export const DonationForm = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { user } = useAuth();
 
   async function salvarBem(bem: any) {
     try {
@@ -49,8 +51,9 @@ export const DonationForm = () => {
     contactPhone: "",
     contactEmail: "",
     status: "available",
-    imageUrl:
-      "http://plone.ufpb.br/labeet/contents/paginas/acervo-brazinst/copy_of_cordofones/udecra/sem-imagem.jpg/@@images/image.jpeg",
+    imageUrl: null,
+    userId: user.uid,
+    interestsNumber: 0,
   });
 
   const handleChange = (
@@ -69,7 +72,9 @@ export const DonationForm = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        const base64 = reader.result as string;
+        setImagePreview(base64);
+        setFormData((prev) => ({ ...prev, imageUrl: base64 }));
       };
       reader.readAsDataURL(file);
     }
@@ -90,6 +95,11 @@ export const DonationForm = () => {
 
     if (!formData.location.trim()) {
       toast.error("Por favor, informe o local de retirada");
+      return;
+    }
+
+    if (!formData.contactEmail.trim() && !formData.contactPhone.trim()) {
+      toast.error("Por favor, informe ou um telefone ou um email para contato");
       return;
     }
 

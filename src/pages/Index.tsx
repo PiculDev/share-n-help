@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
-import { HeroSection } from "@/components/sections/HeroSection";
 import { CategoriesSection } from "@/components/sections/CategoriesSection";
-import { FeaturedItemsSection } from "@/components/sections/FeaturedItemsSection";
-import { HowItWorksSection } from "@/components/sections/HowItWorksSection";
 import { CTASection } from "@/components/sections/CTASection";
+import { FeaturedItemsSection } from "@/components/sections/FeaturedItemsSection";
+import { HeroSection } from "@/components/sections/HeroSection";
+import { HowItWorksSection } from "@/components/sections/HowItWorksSection";
+import { db } from "@/firebase";
 import { categories, DonationItem } from "@/lib/data";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "@/firebase";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -15,9 +15,8 @@ const Index = () => {
   const [featuredItems, setFeaturedItems] = useState<DonationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-
   useEffect(() => {
-    setIsLoaded(true)
+    setIsLoaded(true);
     const fetchFeaturedItems = async () => {
       try {
         setIsLoading(true);
@@ -43,10 +42,11 @@ const Index = () => {
             status: data.status,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
-            reservedBy: data.reservedBy || undefined,
+            interests: data.interests,
+            userId: data.userId,
           });
         });
-        
+
         setFeaturedItems(items.slice(0, 3));
       } catch (err) {
         toast("Erro ao carregar os itens.");
