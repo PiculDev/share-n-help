@@ -51,7 +51,7 @@ export const DonationForm = () => {
     contactPhone: "",
     contactEmail: "",
     status: "available",
-    imageUrl: null,
+    imageUrl: "",
     userId: user.uid,
     interestsNumber: 0,
   });
